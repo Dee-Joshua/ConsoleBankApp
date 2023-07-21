@@ -8,7 +8,7 @@ namespace ConsoleBankApp.Models.AccountTypes
 {
     internal class SavingsAccount : IAccount
     {
-        private User Owner;
+        public User Owner;
         public int Number { get; }
         public decimal Balance { get; }
 
