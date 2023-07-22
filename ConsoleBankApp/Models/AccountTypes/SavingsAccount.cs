@@ -11,11 +11,14 @@ namespace ConsoleBankApp.Models.AccountTypes
         public User Owner;
         public int Number { get; }
         public decimal Balance { get; }
+        private static int accountNumberSeed = 0123456789;
 
         public SavingsAccount(User accountOwner, decimal initalBalance)
         {
             Owner = accountOwner;
             Balance = initalBalance;
+            Number = accountNumberSeed;
+            accountNumberSeed++;
         }
 
         public decimal CheckBalance()
