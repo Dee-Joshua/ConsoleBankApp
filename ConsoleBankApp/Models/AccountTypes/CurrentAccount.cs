@@ -78,18 +78,23 @@ namespace ConsoleBankApp.Models.AccountTypes
             {
                 Balance -= amount;
                 //Store completed transaction in list of transactions
-                Transaction transfer = new Transaction("DEBIT ALERT", amount, transactionDescription, this.Number, recieverAccountNumber);
+                Transaction transfer = new Transaction("DEBIT ALERT", amount, $"{recieverAccountNumber} {transactionDescription}", this.Number, recieverAccountNumber);
                 transactionHistory.Add(transfer);
             }
         }
 
-        /*public void GetAccountStatement()
+        public void GetAccountStatement()
         {
-            foreach (Transaction transaction in transactionHistory)
+            var statement = new StringBuilder();
+
+            //Table Header
+            statement.AppendLine("ACCOUNT HOLDER NAME \t\tACCOUNT NUMBER \t\tTRANSACTION TYPE \t\t AMOUNT(\u20A6) \t\tTRANSACTION DESCRIPTION \t\tDATE AND TIME \t\tBALANCE");
+
+            foreach (Transaction alert in transactionHistory)
             {
-                Console.WriteLine();
-                Console.WriteLine()
+                //Table Rows
+                statement.AppendLine($"{Owner} \t\t{Number} \t\t{alert.Type} \t\t{alert.Amount} \t\t{alert.Description} \t\t{alert.DateAndTime} \t\t")
             }
-        }*/
+        }
     }
 }
