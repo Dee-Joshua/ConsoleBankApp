@@ -9,16 +9,16 @@ namespace ConsoleBankApp.Models.AccountTypes
     internal class SavingsAccount : IAccount
     {
         public User Owner;
-        public int Number { get; }
+        public uint Number { get; }
         public decimal Balance { get; }
-        private static int accountNumberSeed = 0123456789;
+        private static uint accountNumberSeed = 2345678901;
 
         public SavingsAccount(User accountOwner, decimal initalBalance)
         {
             Owner = accountOwner;
             Balance = initalBalance;
             Number = accountNumberSeed;
-            accountNumberSeed++;
+            accountNumberSeed += 10;
         }
 
         public decimal CheckBalance()
@@ -26,12 +26,12 @@ namespace ConsoleBankApp.Models.AccountTypes
             throw new NotImplementedException();
         }
 
-        public void MakeDeposit(decimal amount)
+        public void MakeDeposit(decimal amoun, string transactionDescriptiont)
         {
             throw new NotImplementedException();
         }
 
-        public void MakeWithdraw(decimal amount)
+        public void MakeWithdrawal(decimal amount, string transactionDescription)
         {
             throw new NotImplementedException();
         }

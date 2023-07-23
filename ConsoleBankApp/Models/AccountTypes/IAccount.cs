@@ -10,9 +10,9 @@ namespace ConsoleBankApp.Models.AccountTypes
     {
         public decimal CheckBalance();
 
-        public void MakeDeposit(decimal amount);
+        public void MakeDeposit(decimal amoun, string transactionDescriptiont);
 
-        public void MakeWithdraw(decimal amount);
+        public void MakeWithdrawal(decimal amount, string transactionDescription);
 
         public void MakeTransfer(int accountNumber, decimal amount);
     }
