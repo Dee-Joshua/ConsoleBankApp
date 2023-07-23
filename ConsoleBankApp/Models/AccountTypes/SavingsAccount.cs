@@ -26,7 +26,7 @@ namespace ConsoleBankApp.Models.AccountTypes
             throw new NotImplementedException();
         }
 
-        public void MakeDeposit(decimal amoun, string transactionDescriptiont)
+        public void MakeDeposit(decimal amount, string transactionDescription)
         {
             throw new NotImplementedException();
         }
@@ -36,7 +36,7 @@ namespace ConsoleBankApp.Models.AccountTypes
             throw new NotImplementedException();
         }
 
-        public void MakeTransfer(int accountNumber, decimal amount)
+        public void MakeTransfer(uint recieverAccountNumber, decimal amount, string transactionDescription)
         {
             throw new NotImplementedException();
         }

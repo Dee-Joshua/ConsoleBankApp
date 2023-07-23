@@ -11,7 +11,7 @@ namespace ConsoleBankApp.Models.AccountTypes
     {
         public User Owner;
         public uint Number { get; }
-        private decimal Balance { get; set; }
+        private decimal Balance;
         private static uint accountNumberSeed = 0987654321;
         private List<Transaction> transactionHistory = new List<Transaction>();
 
@@ -29,7 +29,8 @@ namespace ConsoleBankApp.Models.AccountTypes
 
         public decimal CheckBalance()
         {
-            return Balance;
+            decimal accountBalance = Balance;
+            return accountBalance;
         }
 
         public void MakeDeposit(decimal amount, string transactionDescription)
@@ -63,9 +64,32 @@ namespace ConsoleBankApp.Models.AccountTypes
             }
         }
 
-        public void MakeTransfer(int accountNumber, decimal amount)
+        public void MakeTransfer(uint recieverAccountNumber, decimal amount, string transactionDescription)
         {
-            throw new NotImplementedException();
+            if (amount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), "Transfer amount must be more than positive(more than zero)");
+            }
+            else if (amount > Balance)
+            {
+                throw new InvalidOperationException("Insufficient funds for this transfer");
+            }
+            else
+            {
+                Balance -= amount;
+                //Store completed transaction in list of transactions
+                Transaction transfer = new Transaction("DEBIT ALERT", amount, transactionDescription, this.Number, recieverAccountNumber);
+                transactionHistory.Add(transfer);
+            }
         }
+
+        /*public void GetAccountStatement()
+        {
+            foreach (Transaction transaction in transactionHistory)
+            {
+                Console.WriteLine();
+                Console.WriteLine()
+            }
+        }*/
     }
 }
