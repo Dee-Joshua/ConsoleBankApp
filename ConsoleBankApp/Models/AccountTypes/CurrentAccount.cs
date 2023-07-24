@@ -98,8 +98,6 @@ namespace ConsoleBankApp.Models.AccountTypes
                 string row = Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(20) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(25) + alert.DateAndTime.PadRight(25) + alert.RemainingBalance.ToString("N2");
                 statement.AppendLine(row);
             }
-
-
             return statement.ToString();
         }
     }
