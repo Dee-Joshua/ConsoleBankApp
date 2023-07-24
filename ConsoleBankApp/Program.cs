@@ -8,6 +8,10 @@ CurrentAccount myNewAccount = new CurrentAccount(new User("Joshua", "Daria"), 10
 Console.WriteLine($"Account {myNewAccount.Number} was created for {myNewAccount.Owner.FullName} with {nairaSymbol}{myNewAccount.CheckBalance}.");
 
 myNewAccount.MakeWithdrawal(2000, "shopping allowance");
-decimal accountBalance = myNewAccount.CheckBalance();
-Console.WriteLine(accountBalance);
+myNewAccount.MakeTransfer(0987654311, 5000, "TRF to Joy Iyaghi");
+
+Console.WriteLine(myNewAccount.CheckBalance());
+
+Console.WriteLine();
+Console.WriteLine(myNewAccount.GetAccountStatement());
 

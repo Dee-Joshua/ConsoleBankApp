@@ -41,7 +41,7 @@ namespace ConsoleBankApp.Models.AccountTypes
             }
             Balance += amount;
             //Store completed transaction in list of transactions
-            Transaction deposit = new Transaction("CREDIT ALERT", amount, transactionDescription, this.Number);
+            Transaction deposit = new Transaction("Credit", amount, transactionDescription, this.Number, Balance);
             transactionHistory.Add(deposit);
         }
 
@@ -59,7 +59,7 @@ namespace ConsoleBankApp.Models.AccountTypes
             {
                 Balance -= amount;
                 //Store completed transaction in list of transactions
-                Transaction withdrawal = new Transaction("DEBIT ALERT", amount, transactionDescription, this.Number);
+                Transaction withdrawal = new Transaction("Dedit W/D", amount, transactionDescription, this.Number, Balance);
                 transactionHistory.Add(withdrawal); 
             }
         }
@@ -78,23 +78,29 @@ namespace ConsoleBankApp.Models.AccountTypes
             {
                 Balance -= amount;
                 //Store completed transaction in list of transactions
-                Transaction transfer = new Transaction("DEBIT ALERT", amount, $"{recieverAccountNumber} {transactionDescription}", this.Number, recieverAccountNumber);
+                Transaction transfer = new Transaction("Debit TRF", amount, $"{transactionDescription}", this.Number, recieverAccountNumber, Balance);
                 transactionHistory.Add(transfer);
             }
         }
 
-        public void GetAccountStatement()
+        public string GetAccountStatement()
         {
             var statement = new StringBuilder();
+            string accNum = Convert.ToString(Number);
 
             //Table Header
-            statement.AppendLine("ACCOUNT HOLDER NAME \t\tACCOUNT NUMBER \t\tTRANSACTION TYPE \t\t AMOUNT(\u20A6) \t\tTRANSACTION DESCRIPTION \t\tDATE AND TIME \t\tBALANCE");
+            string header = "ACCOUNT NAME".PadRight(20) + "NUMBER".PadRight(15) + "TRANSACTION".PadRight(20) + "AMOUNT(\u20A6)".PadRight(15) + "NARRATION".PadRight(25) + "DATE AND TIME".PadRight(25) + "BALANCE";
+            statement.AppendLine(header);
 
             foreach (Transaction alert in transactionHistory)
             {
-                //Table Rows
-                statement.AppendLine($"{Owner} \t\t{Number} \t\t{alert.Type} \t\t{alert.Amount} \t\t{alert.Description} \t\t{alert.DateAndTime} \t\t")
+                // Table Rows
+                string row = Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(20) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(25) + alert.DateAndTime.PadRight(25) + alert.RemainingBalance.ToString("N2");
+                statement.AppendLine(row);
             }
+
+
+            return statement.ToString();
         }
     }
 }
