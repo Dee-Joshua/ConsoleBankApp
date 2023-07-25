@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ConsoleBankApp.Models
 {
-    internal class Transaction 
+    public class Transaction 
     {
         public decimal Amount { get; private set; }
-        public decimal RemainingBalance { get; set; }
+        public decimal Balance { get; set; }
         public string Type { get; set; }
         public string Description { get; set; }
         public uint SourceAccountNumber { get; set; }
