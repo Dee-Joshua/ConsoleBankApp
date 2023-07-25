@@ -11,11 +11,11 @@ namespace ConsoleBankApp.BusinessLogic
     public class AccountLogic
     {
         private List<Account> accounts;
+
         public AccountLogic()
         {
             accounts = new List<Account>();
         }
-
 
         public Account CreateAccount(Customer customerInfo, string accountType)
         {
@@ -30,6 +30,7 @@ namespace ConsoleBankApp.BusinessLogic
                 account.Number = AccountNumberGenerator.GenerateAccountNumber("200");
             }
             account.Type = accountType;
+            accounts.Add(account);
             return account;
         }
 
@@ -44,8 +45,8 @@ namespace ConsoleBankApp.BusinessLogic
             Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
             if (amount < 0)
             {
-                Console.WriteLine("Deposit amount must be positive");
-                //go to statement to let user re-enter the amount
+                Console.WriteLine("Failed! Deposit amount must be positive");
+                return;
             }
 
             //Credit Customer
@@ -55,25 +56,21 @@ namespace ConsoleBankApp.BusinessLogic
             Transaction depositRecord = TransactionLogic.CreateRecord("Credit DP", amount, transactionDescription, account.Number, account.Balance);
             account.TransactionHistory.Add(depositRecord);
 
-            Console.WriteLine("Transaction Successful!");
+            Console.WriteLine("Credit Transaction Successful!");
         }
 
         public void MakeWithdrawal(string accountNumber, decimal amount, string transactionDescription)
         {
-            
+
             Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
-            
+
             if (amount <= 0)
             {
-                Console.WriteLine("Withdrawal amount must be more than positive(more than zero)");
-                //goto statement to let user re-enter the amount
-
+                Console.WriteLine("Failed! Withdrawal amount must be more than positive(more than zero)");
             }
             else if (amount > account.Balance)
             {
-                Console.WriteLine("Insufficient funds for this withdrawal");
-                //goto statement to throw the user out
-
+                Console.WriteLine("Failed! Insufficient funds for this withdrawal");
             }
             else
             {
@@ -82,7 +79,7 @@ namespace ConsoleBankApp.BusinessLogic
                     if ((account.Balance - amount) < 1000)
                     {
                         Console.WriteLine("Sorry, you can not withdraw past the minimum balance(₦1,000) for a savings account");
-                        //goto statement to let the user re-enter the amount
+                        return;
 
                     }
                 }
@@ -94,7 +91,7 @@ namespace ConsoleBankApp.BusinessLogic
                 Transaction withdrawalRecord = TransactionLogic.CreateRecord("Dedit W/D", amount, transactionDescription, account.Number, account.Balance);
                 account.TransactionHistory.Add(withdrawalRecord);
 
-                Console.WriteLine("Transaction Successful! \nPlease take your cash");
+                Console.WriteLine("Debit Transaction Successful!");
             }
         }
 
@@ -102,39 +99,28 @@ namespace ConsoleBankApp.BusinessLogic
         {
             Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
 
-            if (amount <= 0)
-            {
-                Console.WriteLine("Transfer amount must be positive(more than zero)");
-                //goto statement to let user re-enter the amount
+            //Debit User
+            MakeWithdrawal(accountNumber, amount, transactionDescription);
 
-            }
-            else if (amount > account.Balance)
-            {
-                Console.WriteLine("Insufficient funds for this transfer");
-                //goto statement to throw the user out
-            }
-            else
-            {
-                Balance -= amount;
-                //Store completed transaction in list of transactions
-                Transaction transfer = new Transaction("Debit TRF", amount, $"{transactionDescription}", this.Number, recieverAccountNumber, Balance);
-                transactionHistory.Add(transfer);
-            }
+            //Credit Reciever
+            MakeDeposit(recieverAccountNumber, amount, $"TRF from {account.Owner.FullName}");
         }
 
-        public string GetAccountStatement()
+        public string GetAccountStatement(string accountNumber)
         {
+            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+
             var statement = new StringBuilder();
-            string accNum = Convert.ToString(Number);
+            string accNum = accountNumber;
 
             //Table Header
             string header = "ACCOUNT NAME".PadRight(20) + "NUMBER".PadRight(15) + "TRANSACTION".PadRight(20) + "AMOUNT(₦)".PadRight(15) + "NARRATION".PadRight(25) + "DATE AND TIME".PadRight(25) + "BALANCE(₦)";
             statement.AppendLine(header);
 
-            foreach (Transaction alert in transactionHistory)
+            foreach (Transaction alert in account.TransactionHistory)
             {
                 // Table Rows
-                string row = Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(20) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(25) + alert.DateAndTime.PadRight(25) + alert.Balance.ToString("N2");
+                string row = account.Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(20) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(25) + alert.DateAndTime.PadRight(25) + alert.Balance.ToString("N2");
                 statement.AppendLine(row);
             }
             return statement.ToString();
