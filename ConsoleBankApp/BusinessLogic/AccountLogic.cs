@@ -8,20 +8,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ConsoleBankApp.BusinessLogic
 {
-    public class AccountLogic
+    public static class AccountLogic
     {
-        private List<Account> accounts;
-
-        public AccountLogic()
-        {
-            accounts = new List<Account>();
-        }
-
-        public Account CreateAccount(Customer customerInfo, string accountType)
+        public static Account CreateAccount(Customer customerInfo, string accountType)
         {
             Account account = new Account();
             account.Owner = customerInfo;
-            if (accountType == "Curent") 
+            account.Balance = 0;
+            if (accountType == "Current") 
             {
                 account.Number = AccountNumberGenerator.GenerateAccountNumber("100");
             }
@@ -30,19 +24,19 @@ namespace ConsoleBankApp.BusinessLogic
                 account.Number = AccountNumberGenerator.GenerateAccountNumber("200");
             }
             account.Type = accountType;
-            accounts.Add(account);
+            Console.WriteLine($"Account Successfully Created! \nYour account number is: {account.Number} \nPlease write down your account number then, press any key to continue");
             return account;
         }
 
-        public string CheckBalance(string accountNumber)
+        public static string CheckBalance(string accountNumber)
         {
-            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+            Account account = BankLogic.Accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
             return $"{account.Balance}";
         }
 
-        public void MakeDeposit(string accountNumber, decimal amount, string transactionDescription)
+        public static void MakeDeposit(string accountNumber, decimal amount, string transactionDescription)
         {
-            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+            Account account = BankLogic.Accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
             if (amount < 0)
             {
                 Console.WriteLine("Failed! Deposit amount must be positive");
@@ -59,10 +53,10 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("Credit Transaction Successful!");
         }
 
-        public void MakeWithdrawal(string accountNumber, decimal amount, string transactionDescription)
+        public static void MakeWithdrawal(string accountNumber, decimal amount, string transactionDescription)
         {
 
-            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+            Account account = BankLogic.Accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
 
             if (amount <= 0)
             {
@@ -95,9 +89,9 @@ namespace ConsoleBankApp.BusinessLogic
             }
         }
 
-        public void MakeTransfer(string accountNumber, string recieverAccountNumber, decimal amount, string transactionDescription)
+        public static void MakeTransfer(string accountNumber, string recieverAccountNumber, decimal amount, string transactionDescription)
         {
-            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+            Account account = BankLogic.Accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
 
             //Debit User
             MakeWithdrawal(accountNumber, amount, transactionDescription);
@@ -106,9 +100,9 @@ namespace ConsoleBankApp.BusinessLogic
             MakeDeposit(recieverAccountNumber, amount, $"TRF from {account.Owner.FullName}");
         }
 
-        public string GetAccountStatement(string accountNumber)
+        public static string GetAccountStatement(string accountNumber)
         {
-            Account account = accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
+            Account account = BankLogic.Accounts.Where(a => a.Number == accountNumber).FirstOrDefault();
 
             var statement = new StringBuilder();
             string accNum = accountNumber;

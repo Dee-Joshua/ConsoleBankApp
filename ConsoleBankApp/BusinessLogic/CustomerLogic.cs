@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace ConsoleBankApp.BusinessLogic
 {
-    public class CustomerLogic
+    public static class CustomerLogic
     {
-        public Customer CreateCustomer(string firstName, string lastName, string phoneNumber, string emailAddress)
+        public static Customer CreateCustomer(string firstName, string lastName, string phoneNumber, string emailAddress, string residentAddress, string password)
         {
             Customer user = new Customer();
             user.FullName = $"{firstName} {lastName}";
@@ -19,6 +19,8 @@ namespace ConsoleBankApp.BusinessLogic
             user.Surname = firstName;
             user.Mobile = phoneNumber;
             user.Email = emailAddress;
+            user.Address = residentAddress;
+            user.Password = password;
 
             return user;
         }

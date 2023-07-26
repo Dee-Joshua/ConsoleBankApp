@@ -11,6 +11,9 @@ namespace ConsoleBankApp.BusinessLogic
     {
         public static List<Customer> Customers { get; set; } = new List<Customer>();
         public static List<Account> Accounts { get; set; } = new List<Account>();
+        public static Customer currentUser { get; set; }
+        public static string NumberInUse { get; set; }
+
 
 
         public static void LandingPage()
@@ -41,10 +44,12 @@ namespace ConsoleBankApp.BusinessLogic
             string username = Console.ReadLine();
             Console.Write("Password: ");
             string password = Console.ReadLine();
+
             //Call method in business logic to check for stored email and password from list of customers
             var findCustomer = Customers.Where(c => c.Email == username).FirstOrDefault();
             if (findCustomer != null && findCustomer.Password == password)
             {
+                currentUser = findCustomer;
                 AccountPage();
             }
             else
@@ -59,39 +64,40 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("\n::SignUp Page::");
             Console.WriteLine("Welcome to AlphaTech Bank, please enter your details below\n");
             Console.WriteLine("********NEW CUSTOMER*********");
-            Console.Write("Last Name: ");
-            string lastName = Console.ReadLine();
-            Console.Write("Other Name(s): ");
-            string otherName = Console.ReadLine();
-            Console.Write("Email Address: ");
-            string email = Console.ReadLine();
-            Console.Write("Phone Number: ");
-            string mobile = Console.ReadLine();
-            Console.Write("Resident Address: ");
-            string address = Console.ReadLine();
-            Console.Write("\nPassword: ");
-            string password = Console.ReadLine();
 
-            //If logic the call a method which validates the user input and returns a bool value
+            string lastName = GetNonEmptyInput("Last Name: ");
+            string otherName = GetNonEmptyInput("Other Name(s): ");
+            string email = GetValidInput("Email Address (e.g., user@example.com): ", IsValidEmail);
+            string mobile = GetValidInput("Phone Number (e.g., 08012345678): ", IsValidPhoneNumber);
+            string address = GetNonEmptyInput("Resident Address: ");
+            string password = GetMinLengthInput("Password (at least 6 characters): ", 6);
+
+            // Your code to process the validated input (e.g., create the customer, etc.)
+            var newUser = CustomerLogic.CreateCustomer(otherName, lastName, mobile, email, address, password);
+            Customers.Add(newUser);
+
+            // Wait for user key press before exiting
+            Console.ReadKey();
             SignInPage();
         }
 
         public static void AccountPage()
         {
+            Console.WriteLine("\n:::Account Page:::\n");
             Console.WriteLine("\nPlease select your bank account or create a new one to start transactions");
-            Console.WriteLine("1. {} \n2. {} \n3. Create new bank account");
+            Console.WriteLine($"1. {currentUser.UserAccountNumbers[0]} \n2. {currentUser.UserAccountNumbers[1]} \n3. Create new bank account");
             Console.Write("Enter choice:    ");
             string choice = Console.ReadLine();
-            string sourceAccountNumber;
+            
 
-            if (choice.StartsWith("1") //&& !account.Number.IsNullorEmpty)
-        {
-                sourceAccountNumber = null;
+            if (choice.StartsWith("1") && currentUser.UserAccountNumbers[0] != "")
+            {
+                NumberInUse = currentUser.UserAccountNumbers[0];
                 MainMenu();
             }
-            else if (choice.StartsWith("2")  //&& !account.Number.IsNullorEmpty )
-        {
-                sourceAccountNumber = "";
+            else if (choice.StartsWith("2")  && currentUser.UserAccountNumbers[1] != "")
+            {
+                NumberInUse = currentUser.UserAccountNumbers[1];
                 MainMenu();
             }
             else
@@ -106,21 +112,29 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("1. Current \n2. Savings");
             Console.Write("Enter choice:    ");
             string choice = Console.ReadLine();
-            if (choice.StartsWith("1"))
+            var findAccount1 = Accounts.Where(a => a.Owner == currentUser).FirstOrDefault();
+            var findAccount2 = Accounts.Where(a => a.Owner == currentUser).LastOrDefault();
+            if (choice.StartsWith("1") && findAccount1.Type != "Current" && findAccount2.Type != "Current")
             {
-                //accounttype = "Current"
-                //Create account method
+                var newAccount = AccountLogic.CreateAccount(currentUser, "Current");
+                currentUser.UserAccountNumbers[0] = newAccount.Number;
+                Accounts.Add(newAccount);
+                NumberInUse = newAccount.Number;
+                Console.ReadKey();
                 MainMenu();
             }
-            else if (choice.StartsWith("2"))
+            else if (choice.StartsWith("2") && findAccount1.Type != "Savings" && findAccount2.Type != "Savings")
             {
-                //acounttype = "Savings"
-                //Create and save account method
+                var newAccount = AccountLogic.CreateAccount(currentUser, "Savings");
+                currentUser.UserAccountNumbers[1] = newAccount.Number;
+                Accounts.Add(newAccount);
+                NumberInUse = newAccount.Number;
+                Console.ReadKey();
                 MainMenu();
             }
             else
             {
-                Console.WriteLine("!!! Invalid Selection !!!");
+                Console.WriteLine("Invalid Selection or you are trying to create an account type that already exist! \n Note: You cannot have multiple accounts of the same type (e.g both savings or both current");
                 AccountPage();
             }
         }
@@ -154,11 +168,11 @@ namespace ConsoleBankApp.BusinessLogic
         {
             Console.WriteLine("\n****Funds Deposit Page****");
             Console.Write("Please enter deposit amount: ₦");
-            decimal crdAmount;
-            if (decimal.TryParse(Console.ReadLine(), out crdAmount))
+            decimal crAmount;
+            if (decimal.TryParse(Console.ReadLine(), out crAmount))
             {
                 //deposit method call
-
+                AccountLogic.MakeDeposit(NumberInUse, crAmount, "Cr./Deposit");
             }
             else
             {
@@ -171,11 +185,11 @@ namespace ConsoleBankApp.BusinessLogic
         {
             Console.WriteLine("\n****Funds Withdrawal Page****");
             Console.Write("Please enter withdrawal amount: ₦");
-            decimal debAmount;
-            if (decimal.TryParse(Console.ReadLine(), out debAmount))
+            decimal drAmount;
+            if (decimal.TryParse(Console.ReadLine(), out drAmount))
             {
                 //withdrawal method call
-
+                AccountLogic.MakeWithdrawal(NumberInUse, drAmount, "Dr./Withdrawal");
             }
             else
             {
@@ -190,15 +204,15 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("\n****Funds Transfer Page****");
             Console.Write("Please enter reciever's account number: ");
             string destinationAccount = Console.ReadLine();
+            var findAccount = Accounts.Where(a => a.Number == destinationAccount).FirstOrDefault();
 
-
-            if (destinationAccount == //acount numbers in banks)
+            if (findAccount is not null)
     {
                 Console.Write("Please enter deposit amount: ₦");
                 if (decimal.TryParse(Console.ReadLine(), out debAmount))
                 {
                     //withdrawal method call
-
+                    AccountLogic.MakeTransfer(NumberInUse, destinationAccount, debAmount, "Dr./Transfer");
                 }
                 else
                 {
@@ -215,14 +229,61 @@ namespace ConsoleBankApp.BusinessLogic
         public static void BalancePage()
         {
             Console.WriteLine("\n****Account Balance****");
-            Console.WriteLine("Your current account balance is: ₦{}");
+            Console.WriteLine($"Your current account balance is: ₦{AccountLogic.CheckBalance}");
         }
 
         public static void StatementPage()
         {
             Console.WriteLine("\n****Account Statement****");
-            Console.WriteLine();
+            Console.WriteLine(AccountLogic.GetAccountStatement(NumberInUse));
+        }
 
+        //User Input Validation Methods
+        static string GetNonEmptyInput(string prompt)
+        {
+            string input;
+            do
+            {
+                Console.Write(prompt);
+                input = Console.ReadLine();
+            } while (string.IsNullOrWhiteSpace(input));
+            return input;
+        }
+
+        static string GetValidInput(string prompt, Func<string, bool> validator)
+        {
+            string input;
+            do
+            {
+                Console.Write(prompt);
+                input = Console.ReadLine();
+            } while (!validator(input));
+            return input;
+        }
+
+        static string GetMinLengthInput(string prompt, int minLength)
+        {
+            string input;
+            do
+            {
+                Console.Write(prompt);
+                input = Console.ReadLine();
+            } while (input.Length < minLength);
+            return input;
+        }
+
+        // Email validation method (using a simple regex pattern)
+        static bool IsValidEmail(string email)
+        {
+            return !string.IsNullOrWhiteSpace(email) &&
+                   System.Text.RegularExpressions.Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+        }
+
+        // Nigerian phone number validation method (must start with 0 and have 11 digits)
+        static bool IsValidPhoneNumber(string phone)
+        {
+            return !string.IsNullOrWhiteSpace(phone) &&
+                   System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0\d{10}$");
         }
     }
 }
