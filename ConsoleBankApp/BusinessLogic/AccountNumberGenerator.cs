@@ -12,8 +12,8 @@ namespace ConsoleBankApp.BusinessLogic
 
         public static string GenerateAccountNumber(string prefix)
         {
-            int randomNumber = random.Next(100000000, 1000000000); // 9-digit random number
-            return $"{prefix}{randomNumber:D9}";
+            int randomNumber = random.Next(1000000, 10000000); // 7-digit random number
+            return $"{prefix}{randomNumber:D7}";
         }
     }
 }

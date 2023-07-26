@@ -22,6 +22,7 @@ namespace ConsoleBankApp.BusinessLogic
             user.Address = residentAddress;
             user.Password = password;
 
+            Console.WriteLine("\nThank you for signing up with AlphaTech Bank! \n\nPress any key to continue...");
             return user;
         }
     }

@@ -15,25 +15,38 @@ namespace ConsoleBankApp.BusinessLogic
         public static string NumberInUse { get; set; }
 
 
-
         public static void LandingPage()
         {
             Console.Clear();
-            Console.WriteLine("************** AlphaTech Bank *****************");
-            Console.WriteLine("\n\n1. SignIn \n2. SignUp \nPress any key to EXIT");
-            Console.Write("Enter choice: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("   *****************************************");
+            Console.WriteLine("   *                                       *");
+            Console.WriteLine("   *          AlphaTech Bank              *");
+            Console.WriteLine("   *                                       *");
+            Console.WriteLine("   *****************************************");
+            Console.ResetColor();
+
+            Console.WriteLine("\n1. SignIn");
+            Console.WriteLine("2. SignUp");
+            Console.WriteLine("3. Exit");
+
+            Console.Write("\nEnter your choice: ");
             string choice = Console.ReadLine();
-            if (choice.StartsWith("1"))
+
+            switch (choice)
             {
-                SignInPage();
-            }
-            else if (choice.StartsWith("2"))
-            {
-                SignUpPage();
-            }
-            else
-            {
-                Console.WriteLine("\nThankyou, have a nice day :)\n");
+                case "1":
+                    SignInPage();
+                    break;
+                case "2":
+                    SignUpPage();
+                    break;
+                case "3":
+                    Console.WriteLine("\nThank you for visiting AlphaTech Bank. Have a nice day! :)\n");
+                    break;
+                default:
+                    Console.WriteLine("\nInvalid choice. Please try again.\n");
+                    break;
             }
         }
 
@@ -65,10 +78,10 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("Welcome to AlphaTech Bank, please enter your details below\n");
             Console.WriteLine("********NEW CUSTOMER*********");
 
-            string lastName = GetNonEmptyInput("Last Name: ");
-            string otherName = GetNonEmptyInput("Other Name(s): ");
+            string lastName = GetValidName("Last Name (Start with an uppercase letter): ");
+            string otherName = GetValidName("Other Name(s) (Start with an uppercase letter): ");
             string email = GetValidInput("Email Address (e.g., user@example.com): ", IsValidEmail);
-            string mobile = GetValidInput("Phone Number (e.g., 08012345678): ", IsValidPhoneNumber);
+            string mobile = GetValidInput("Phone Number (e.g., +2348021234567): ", IsValidPhoneNumber);
             string address = GetNonEmptyInput("Resident Address: ");
             string password = GetMinLengthInput("Password (at least 6 characters): ", 6);
 
@@ -112,9 +125,9 @@ namespace ConsoleBankApp.BusinessLogic
             Console.WriteLine("1. Current \n2. Savings");
             Console.Write("Enter choice:    ");
             string choice = Console.ReadLine();
-            var findAccount1 = Accounts.Where(a => a.Owner == currentUser).FirstOrDefault();
-            var findAccount2 = Accounts.Where(a => a.Owner == currentUser).LastOrDefault();
-            if (choice.StartsWith("1") && findAccount1.Type != "Current" && findAccount2.Type != "Current")
+            var findAccount1 = currentUser.UserAccountNumbers[0];
+            var findAccount2 = currentUser.UserAccountNumbers[1];
+            if (choice.StartsWith("1") && findAccount1 == "" && findAccount2 == "")
             {
                 var newAccount = AccountLogic.CreateAccount(currentUser, "Current");
                 currentUser.UserAccountNumbers[0] = newAccount.Number;
@@ -123,7 +136,7 @@ namespace ConsoleBankApp.BusinessLogic
                 Console.ReadKey();
                 MainMenu();
             }
-            else if (choice.StartsWith("2") && findAccount1.Type != "Savings" && findAccount2.Type != "Savings")
+            else if (choice.StartsWith("2") && findAccount2 == "" && findAccount2 == "")
             {
                 var newAccount = AccountLogic.CreateAccount(currentUser, "Savings");
                 currentUser.UserAccountNumbers[1] = newAccount.Number;
@@ -142,7 +155,7 @@ namespace ConsoleBankApp.BusinessLogic
         public static void MainMenu()
         {
             Console.WriteLine("\n:::Main Menu:::");
-            Console.WriteLine("1. Deposit funds \n2. Withdraw funds \n3. Transfer funds \n4. Check balance \n5. Account Statement \n0. Exit");
+            Console.WriteLine("1. Deposit funds \n2. Withdraw funds \n3. Transfer funds \n4. Check balance \n5. Account Statement \n9. Change Account \n0. Exit");
             Console.Write("Enter choice:    ");
             string choice = Console.ReadLine();
             switch (choice)
@@ -152,10 +165,8 @@ namespace ConsoleBankApp.BusinessLogic
                 case "3": TransferPage(); break;
                 case "4": BalancePage(); break;
                 case "5": StatementPage(); break;
-                case "0":
-                    Console.WriteLine("Logging out...");
-                    LandingPage();
-                    break;
+                case "9": AccountPage(); break;
+                case "0": LandingPage(); break;
                 default:
                     Console.WriteLine("\nInvalid Selection. \nPlease try again\n");
                     MainMenu();
@@ -223,19 +234,22 @@ namespace ConsoleBankApp.BusinessLogic
             {
                 Console.WriteLine("This account does not exist in our Bank");
             }
+
             MainMenu();
         }
 
         public static void BalancePage()
         {
             Console.WriteLine("\n****Account Balance****");
-            Console.WriteLine($"Your current account balance is: ₦{AccountLogic.CheckBalance}");
+            Console.WriteLine($"Your current account balance is: ₦{AccountLogic.CheckBalance(NumberInUse)}");
+            MainMenu();
         }
 
         public static void StatementPage()
         {
             Console.WriteLine("\n****Account Statement****");
             Console.WriteLine(AccountLogic.GetAccountStatement(NumberInUse));
+            MainMenu();
         }
 
         //User Input Validation Methods
@@ -272,6 +286,29 @@ namespace ConsoleBankApp.BusinessLogic
             return input;
         }
 
+        static string GetValidName(string prompt)
+        {
+            string name;
+            do
+            {
+                name = GetNonEmptyInput(prompt);
+            } while (!IsValidName(name));
+            return name;
+        }
+
+        // Name validation method
+        static bool IsValidName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+
+            if (char.IsDigit(name[0]) || char.IsLower(name[0]))
+            {
+                Console.WriteLine("Name must start with an uppercase letter.");
+                return false;
+            }
+            return true;
+        }
+
         // Email validation method (using a simple regex pattern)
         static bool IsValidEmail(string email)
         {
@@ -279,11 +316,11 @@ namespace ConsoleBankApp.BusinessLogic
                    System.Text.RegularExpressions.Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
         }
 
-        // Nigerian phone number validation method (must start with 0 and have 11 digits)
+        // Phone number validation method with country code (e.g., +2348021234567)
         static bool IsValidPhoneNumber(string phone)
         {
             return !string.IsNullOrWhiteSpace(phone) &&
-                   System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0\d{10}$");
+                   System.Text.RegularExpressions.Regex.IsMatch(phone, @"^\+\d{10,}$");
         }
     }
 }

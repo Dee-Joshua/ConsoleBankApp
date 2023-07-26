@@ -108,13 +108,13 @@ namespace ConsoleBankApp.BusinessLogic
             string accNum = accountNumber;
 
             //Table Header
-            string header = "ACCOUNT NAME".PadRight(20) + "NUMBER".PadRight(15) + "TRANSACTION".PadRight(20) + "AMOUNT(₦)".PadRight(15) + "NARRATION".PadRight(25) + "DATE AND TIME".PadRight(25) + "BALANCE(₦)";
+            string header = "ACCOUNT NAME".PadRight(20) + "NUMBER".PadRight(15) + "TRANSACTION".PadRight(15) + "AMOUNT(₦)".PadRight(15) + "NARRATION".PadRight(20) + "DATE AND TIME".PadRight(20) + "BALANCE(₦)";
             statement.AppendLine(header);
 
             foreach (Transaction alert in account.TransactionHistory)
             {
                 // Table Rows
-                string row = account.Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(20) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(25) + alert.DateAndTime.PadRight(25) + alert.Balance.ToString("N2");
+                string row = account.Owner.FullName.PadRight(20) + accNum.PadRight(15) + alert.Type.PadRight(15) + alert.Amount.ToString("N2").PadRight(15) + alert.Description.PadRight(20) + alert.DateAndTime.PadRight(20) + alert.Balance.ToString("N2");
                 statement.AppendLine(row);
             }
             return statement.ToString();
